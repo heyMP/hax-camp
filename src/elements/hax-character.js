@@ -1,5 +1,5 @@
 import { css } from 'lit';
-import { RpgCharacter } from '@lrnwebcomponents/rpg-character';
+import { RpgCharacter } from 'https://unpkg.com/@lrnwebcomponents/rpg-character/rpg-character.js?module';
 
 export class HaxCharacter extends RpgCharacter {
   static styles = [

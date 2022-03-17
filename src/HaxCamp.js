@@ -96,7 +96,7 @@ export class HaxCamp extends LitElement {
     return html`
       <div>
         <div class="hero">
-          <img src=${new URL('/assets/haxBanner.png', import.meta.url)} />
+          <img src=${new URL('../assets/haxBanner.png', import.meta.url)} />
         </div>
         <main>
           <h1>
