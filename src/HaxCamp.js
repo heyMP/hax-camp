@@ -1,6 +1,7 @@
 import { LitElement, html, css, unsafeCSS } from 'lit';
 import './elements/hax-character.js';
 import './elements/hax-conversation.js';
+import './elements/hax-hero.js';
 
 export class HaxCamp extends LitElement {
   static get properties() {
@@ -12,20 +13,9 @@ export class HaxCamp extends LitElement {
   static get styles() {
     return css`
       :host {
-        /* open props */
-        --size-fluid-1: clamp(0.5rem, 1vw, 1rem);
-        --size-fluid-2: clamp(1rem, 2vw, 1.5rem);
-        --size-fluid-3: clamp(1.5rem, 3vw, 2rem);
-        --size-fluid-4: clamp(2rem, 4vw, 3rem);
-        --size-fluid-5: clamp(4rem, 5vw, 5rem);
-        --size-fluid-6: clamp(5rem, 7vw, 7.5rem);
-        --size-fluid-7: clamp(7.5rem, 10vw, 10rem);
-        --size-fluid-8: clamp(10rem, 20vw, 15rem);
-        --size-fluid-9: clamp(15rem, 30vw, 20rem);
-        --size-fluid-10: clamp(20rem, 40vw, 30rem);
-
         /* internal variables */
         --_color-primary: var(--color-primary, #9aa9c4);
+        --_color-secondary: var(--color-secondary, #001e44);
         --_content-max-width: var(--content-max-width, 1200px);
         --_side-margin: var(--side-margin, clamp(2rem, 5vw, 8rem));
 
@@ -92,73 +82,83 @@ export class HaxCamp extends LitElement {
     super();
   }
 
+  createRenderRoot() {
+    return this;
+  }
+
+  renderTrees(amount, min, max, direction = 'right') {
+    const getRandomArbitrary = () => {
+      return Math.random() * (max - min) + min;
+    };
+
+    const _direction = direction === 'right' ? Number(-1) : Number(1);
+
+    return html`
+      ${Array.from(Array(amount).keys()).map(
+        item =>
+          html`
+            <a-entity
+              position="${getRandomArbitrary()} .5 ${getRandomArbitrary() *
+              _direction}"
+              mixin="tree"
+            ></a-entity>
+          `
+      )}
+    `;
+  }
+
   render() {
     return html`
-      <div>
-        <div class="hero">
-          <img src=${new URL('../assets/haxBanner.png', import.meta.url)} />
-        </div>
-        <main>
-          <h1>
-            Get ready for Camp! We're excited to bring HAXCamp to Penn State on
-            May 9-10, 2022.
-          </h1>
-          <hax-conversation auto>
-            <hax-conversation-item>
-              <p slot="question">
-                Want to learn more about
-                <strong>LitElement, VanillaJS,</strong> and others?
-              </p>
-              <p slot="answer">Come learn with us!</p>
-            </hax-conversation-item>
-            <hax-conversation-item>
-              <p slot="question">
-                Interested in framework-agnostic components you can use in your
-                existing <strong>React, Angular, Vue, Backbone,</strong> and
-                <strong>CMS</strong> projects?
-              </p>
-              <p slot="answer">It's all we're talking about!</p>
-            </hax-conversation-item>
-            <hax-conversation-item>
-              <p slot="question">
-                Have you made some cool web components and want to show them
-                off?
-              </p>
-              <p slot="answer">Join us!</p>
-            </hax-conversation-item>
-            <hax-conversation-item>
-              <p slot="question">
-                Need to figure out
-                <strong>tooling, building, SEO, polyfills,</strong> and other
-                considerations?
-              </p>
-              <p slot="answer">Let's figure it out together!</p>
-            </hax-conversation-item>
-            <hax-conversation-item>
-              <p slot="question">
-                Do you want to learn more about web components from top to
-                bottom?
-              </p>
-              <p slot="answer">Join us as we all discover together!</p>
-            </hax-conversation-item>
-            <hax-conversation-item>
-              <p slot="question">
-                Want to learn more about
-                <strong>HAX, HAXcms, and all things HAXTheWeb?</strong>
-              </p>
-              <p slot="answer">Join us and find out!</p>
-            </hax-conversation-item>
-          </hax-conversation>
-          <p>
-            <strong>&lt; hax-camp &gt;</strong> provides a space for
-            collaboration, discussion, and sharing of best practices for those
-            exploring web components. Whether you are using HAX, or anything
-            else, you’ll learn and share valuable knowledge about web components
-            at <strong>&lt; hax-camp &gt;</strong>.
-          </p>
-        </main>
-      </div>
-      <hax-character></hax-character>
+      <a-scene>
+        <a-assets>
+          <a-asset-item id="treeModel" src="${new URL(
+            '../assets/tree.glb',
+            import.meta.url
+          )}"></a-asset-item>
+          <a-asset-item id="haxModel" src="${new URL(
+            '../assets/hax.glb',
+            import.meta.url
+          )}"></a-asset-item>
+          <a-mixin id="tree" position="0 10 0" gltf-model="#treeModel" scale=".1 .1 .1" visible="true"></a-mixin>
+          <img id="hax-banner" src=${new URL(
+            '../assets/haxBanner.svg',
+            import.meta.url
+          )}>
+          <a-mixin id="hax" position="0 1.62368 -5" rotation="90 0 0" gltf-model="#haxModel" scale="10 10 10" visible="true"></a-mixin>
+        </a-assets>
+
+        <!-- behind -->
+        <!-- ${this.renderTrees(80, 0, 10)} -->
+        <!-- ${this.renderTrees(80, -10, -2, 'left')} -->
+        <!-- ${this.renderTrees(80, 2, 10)} -->
+
+        <a-entity id="hax" position="-1.95129 1.01699 -3.27237" scale=".5 .5 .5">
+          <a-entity id="h" position="0 0 0">
+            <a-box id="h-left" geometry="height:4; width:.1;"></a-box>
+            <a-box id="h-mid" geometry="height:.1; width:2;" position="1 0 0"></a-box>
+            <a-box id="h-right" geometry="height:4; width:.1;" position="2 0 0"></a-box>
+          </a-entity>
+          <a-entity id="a" position="3 0 0">
+            <a-box id="a-left" geometry="height:4; width:.1;" rotation="0 0 -15"></a-box>
+            <a-box id="a-mid" geometry="height:.1; width:1.1;" position=".54 0 0"></a-box>
+            <a-box id="a-right" geometry="height:4; width:.1;" position="1.1 0 0" rotation="0 0 15"></a-box>
+          </a-entity>
+          <a-entity id="x" position="6 0 0">
+            <a-box id="x-left" geometry="height:4; width:.1;" rotation="0 0 -30"></a-box>
+          </a-entity>
+        </a-entity>
+
+        <a-plane
+          position="0 0 -4"
+          rotation="-90 0 0"
+          width="40"
+          height="40"
+          color="#7BC8A4"
+        ></a-plane>
+        <!-- <a-plane src="#hax-banner" height="100" width="100" rotation="0 0 0" position="0 0 -150"></a-plane> -->
+        <a-sky color="lightblue"></a-sky>
+        <a-camera position="" touchEnabled="false" wasd-controls-enabled="false" look-controls-enabled="true" touchEnabled="true">
+      </a-scene>
     `;
   }
 }

@@ -15,8 +15,9 @@
     "start": "web-dev-server"
   },
   "dependencies": {
+    "@lrnwebcomponents/rpg-character": "^4.0.16",
     "lit": "^2.0.2",
-    "@lrnwebcomponents/rpg-character": "^4.0.16"
+    "three": "^0.138.3"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.16.4",
