@@ -1,7 +1,5 @@
 const loadArt = async file => {
-  const art = await fetch(new URL(file, import.meta.url)).then(res =>
-    res.text()
-  );
+  const art = await fetch(file).then(res => res.text());
   const values = Array.from(art);
   const uniqueValues = new Set(values);
   const columns = art.split('\n').reverse();
@@ -29,7 +27,9 @@ AFRAME.registerComponent('ascii-art', {
   init: async function () {
     this.t = 0;
     const scale = this.data.scale;
-    this.artPixels = await loadArt('../../assets/hax-hd.txt');
+    this.artPixels = await loadArt(
+      new URL('../../assets/hax-hd.txt', import.meta.url)
+    );
     this.artPixels.forEach((pixel, index) => {
       var material = new THREE.MeshBasicMaterial({ color: 'blue' });
       var geometry = new THREE.BoxGeometry(1 * scale, 1 * scale, 5 * scale);
