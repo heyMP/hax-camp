@@ -14,6 +14,7 @@ export class HaxCamp extends LitElement {
   static get properties() {
     return {
       title: { type: String },
+      artPixels: { type: Array },
     };
   }
 
@@ -87,144 +88,61 @@ export class HaxCamp extends LitElement {
 
   constructor() {
     super();
+    this.artPixels = [];
   }
 
   createRenderRoot() {
     return this;
   }
 
-  renderTrees(amount, min, max, direction = 'right') {
-    const getRandomArbitrary = () => {
-      return Math.random() * (max - min) + min;
-    };
+  async _loadArt({ file }) {
+    const art = await fetch(new URL(file, import.meta.url)).then(res =>
+      res.text()
+    );
+    const values = Array.from(art);
+    const uniqueValues = new Set(values);
+    const columns = art.split('\n').reverse();
+    const artPixels = columns.flatMap((column, columnIndex) =>
+      Array.from(column)
+        .map((value, pixelIndex) => ({
+          value,
+          xPosition: pixelIndex,
+          yPosition: columnIndex,
+        }))
+        .filter(item => item.value === ' ')
+    );
 
-    const _direction = direction === 'right' ? Number(-1) : Number(1);
-
-    return html`
-      ${Array.from(Array(amount).keys()).map(
-        item =>
-          html`
-            <a-entity
-              position="${getRandomArbitrary()} .5 ${getRandomArbitrary() *
-              _direction}"
-              mixin="tree"
-            ></a-entity>
-          `
-      )}
-    `;
+    console.log(artPixels);
+    this.artPixels = artPixels;
   }
 
-  renderBoxedContainer({ scale = 1, count, offset = 0 }) {
-    return html`
-      ${loop(count).map(
-        index => html`
-          <a-entity
-            scale="${scale} ${scale} ${scale}"
-            mixin="hax-box"
-            position="${index * boxSize + offset} 0 0"
-          ></a-entity>
-        `
-      )}
-      ${loop(count).map(
-        index => html`
-          <a-entity
-            scale="${scale} ${scale} ${scale}"
-            mixin="hax-box"
-            position="0 ${index * boxSize + offset} 0"
-          ></a-entity>
-        `
-      )}
-      ${loop(count).map(
-        index => html`
-          <a-entity
-            scale="${scale} ${scale} ${scale}"
-            mixin="hax-box"
-            position="${count + offset + boxSize} ${index * boxSize + offset} 0"
-          ></a-entity>
-        `
-      )}
-      ${loop(count).map(
-        index => html`
-          <a-entity
-            scale="${scale} ${scale} ${scale}"
-            mixin="hax-box"
-            position="${index * boxSize + offset} ${count + offset + boxSize} 0"
-          ></a-entity>
-        `
-      )}
-    `;
+  firstUpdated() {
+    this._loadArt({ file: '../assets/hax.txt' });
+  }
+
+  renderArtboardPosition(artPixels) {
+    return `${Math.floor(
+      (artPixels[artPixels.length - 1]?.xPosition || 0) * -1
+    )} ${Math.floor(
+      (artPixels[artPixels.length - 1]?.yPosition / 2 || 0) * -1
+    )} 0`;
   }
 
   render() {
     return html`
       <a-scene>
-        <a-assets>
-          <a-asset-item
-            id="treeModel"
-            src="${new URL('../assets/tree.glb', import.meta.url)}"
-          ></a-asset-item>
-          <a-asset-item
-            id="haxModel"
-            src="${new URL('../assets/hax.glb', import.meta.url)}"
-          ></a-asset-item>
-          <a-mixin
-            id="tree"
-            position="0 10 0"
-            gltf-model="#treeModel"
-            scale=".1 .1 .1"
-            visible="true"
-          ></a-mixin>
-          <img
-            id="hax-banner"
-            src=${new URL('../assets/haxBanner.svg', import.meta.url)}
-          />
-          <a-mixin
-            id="hax"
-            position="0 1.62368 -5"
-            rotation="90 0 0"
-            gltf-model="#haxModel"
-            scale="10 10 10"
-            visible="true"
-          ></a-mixin>
-          <a-mixin
-            id="hax-box"
-            geometry="primitive:box; width:${boxSize}; height:${boxSize}; depth:${boxSize};"
-            material="color:${boxColor};"
-          ></a-mixin>
-        </a-assets>
-
-        <!-- behind -->
-        <!-- ${this.renderTrees(80, 0, 10)} -->
-        <!-- ${this.renderTrees(80, -10, -2, 'left')} -->
-        <!-- ${this.renderTrees(80, 2, 10)} -->
-
-        <a-entity id="hax-logo">
-          <a-entity id="hax-logo-container" class="letter" position="-12 -12 0">
-            ${this.renderBoxedContainer({
-              scale: 2,
-              count: 30,
-              offset: 5,
-            })}
-          </a-entity>
-
-          <a-entity id="hax-logo-h" class="letter" position="-8 8 0">
-            <a-entity>
-              ${this.renderBoxedContainer({ scale: 2, count: 8 })}
-            </a-entity>
-          </a-entity>
-          <a-entity id="hax-logo-a" class="letter">
-            <a-entity>
-              ${this.renderBoxedContainer({ scale: 2, count: 8 })}
-            </a-entity>
-          </a-entity>
-          <a-entity id="hax-logo-x" class="letter" position="8 -8 0">
-            <a-entity>
-              ${this.renderBoxedContainer({ scale: 2, count: 8 })}
-            </a-entity>
-          </a-entity>
+        <a-assets> </a-assets>
+        <a-entity id="artboard" size=".1 .1 .1">
+          ${this.artPixels.map(
+            pixel =>
+              html`
+                <a-entity
+                  geometry="primitive:box; width:${boxSize}; height:${boxSize}; depth:${boxSize};"
+                  position="${pixel.xPosition} ${pixel.yPosition} 0"
+                ></a-entity>
+              `
+          )}
         </a-entity>
-
-        <!-- <a-plane src="#hax-banner" height="100" width="100" rotation="0 0 0" position="0 0 -150"></a-plane> -->
         <a-sky color="lightblue"></a-sky>
         <a-entity
           camera
