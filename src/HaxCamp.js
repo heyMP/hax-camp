@@ -2,6 +2,7 @@ import { LitElement, html, css, unsafeCSS } from 'lit';
 import './elements/hax-character.js';
 import './elements/hax-conversation.js';
 import './elements/hax-hero.js';
+import './aframe-components/asciiArt.js';
 
 const boxSize = 1;
 const boxColor = '#cfcff7';
@@ -99,55 +100,53 @@ export class HaxCamp extends LitElement {
     const art = await fetch(new URL(file, import.meta.url)).then(res =>
       res.text()
     );
-    const values = Array.from(art);
-    const uniqueValues = new Set(values);
+    // const values = Array.from(art);
+    // const uniqueValues = new Set(values);
     const columns = art.split('\n').reverse();
-    const artPixels = columns.flatMap((column, columnIndex) =>
+    const artPixelsMatrix = columns.map((column, columnIndex) =>
       Array.from(column)
         .map((value, pixelIndex) => ({
           value,
           xPosition: pixelIndex,
           yPosition: columnIndex,
         }))
-        .filter(item => item.value === ' ')
+        .filter(item => [' ', '.'].includes(item.value))
     );
 
-    console.log(artPixels);
+    const artPixels = artPixelsMatrix.flatMap(item => item);
+    // console.log(artPixels);
+    console.log(`${artPixels.length} pixels`);
     this.artPixels = artPixels;
   }
 
   firstUpdated() {
-    this._loadArt({ file: '../assets/hax.txt' });
+    this._loadArt({ file: '../assets/hax-hd.txt' });
   }
 
-  renderArtboardPosition(artPixels) {
-    return `${Math.floor(
-      (artPixels[artPixels.length - 1]?.xPosition || 0) * -1
-    )} ${Math.floor(
-      (artPixels[artPixels.length - 1]?.yPosition / 2 || 0) * -1
-    )} 0`;
-  }
+  // renderArtboardPosition(artPixels) {
+  //   return `${Math.floor(
+  //     (artPixels[artPixels.length - 1]?.xPosition || 0) * -1
+  //   )} ${Math.floor(
+  //     (artPixels[artPixels.length - 1]?.yPosition / 2 || 0) * -1
+  //   )} 0`;
+  // }
 
   render() {
     return html`
       <a-scene>
         <a-assets> </a-assets>
-        <a-entity id="artboard" size=".1 .1 .1">
-          ${this.artPixels.map(
-            pixel =>
-              html`
-                <a-entity
-                  geometry="primitive:box; width:${boxSize}; height:${boxSize}; depth:${boxSize};"
-                  position="${pixel.xPosition} ${pixel.yPosition} 0"
-                ></a-entity>
-              `
-          )}
+        <a-entity id="ascii-art" position="0 0 0">
+          <a-entity
+            ascii-art
+            scale=".06 .06 .06"
+            position="-6.5 0 0"
+          ></a-entity>
         </a-entity>
         <a-sky color="lightblue"></a-sky>
         <a-entity
           camera
           look-controls
-          orbit-controls="target: 0 1.6 -0.5; minDistance: 0.5; maxDistance: 180; initialPosition: 0 5 45"
+          orbit-controls="target: 0 1.6 -0.5; minDistance: .5; maxDistance: 180; initialPosition: 0 5 15"
         ></a-entity>
       </a-scene>
     `;
