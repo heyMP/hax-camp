@@ -3,6 +3,13 @@ import './elements/hax-character.js';
 import './elements/hax-conversation.js';
 import './elements/hax-hero.js';
 
+const boxSize = 1;
+const boxColor = '#cfcff7';
+
+const loop = number => {
+  return Array.from(Array(number).keys());
+};
+
 export class HaxCamp extends LitElement {
   static get properties() {
     return {
@@ -107,24 +114,83 @@ export class HaxCamp extends LitElement {
     `;
   }
 
+  renderBoxedContainer({ scale = 1, count, offset = 0 }) {
+    return html`
+      ${loop(count).map(
+        index => html`
+          <a-entity
+            scale="${scale} ${scale} ${scale}"
+            mixin="hax-box"
+            position="${index * boxSize + offset} 0 0"
+          ></a-entity>
+        `
+      )}
+      ${loop(count).map(
+        index => html`
+          <a-entity
+            scale="${scale} ${scale} ${scale}"
+            mixin="hax-box"
+            position="0 ${index * boxSize + offset} 0"
+          ></a-entity>
+        `
+      )}
+      ${loop(count).map(
+        index => html`
+          <a-entity
+            scale="${scale} ${scale} ${scale}"
+            mixin="hax-box"
+            position="${count + offset + boxSize} ${index * boxSize + offset} 0"
+          ></a-entity>
+        `
+      )}
+      ${loop(count).map(
+        index => html`
+          <a-entity
+            scale="${scale} ${scale} ${scale}"
+            mixin="hax-box"
+            position="${index * boxSize + offset} ${count + offset + boxSize} 0"
+          ></a-entity>
+        `
+      )}
+    `;
+  }
+
   render() {
     return html`
       <a-scene>
         <a-assets>
-          <a-asset-item id="treeModel" src="${new URL(
-            '../assets/tree.glb',
-            import.meta.url
-          )}"></a-asset-item>
-          <a-asset-item id="haxModel" src="${new URL(
-            '../assets/hax.glb',
-            import.meta.url
-          )}"></a-asset-item>
-          <a-mixin id="tree" position="0 10 0" gltf-model="#treeModel" scale=".1 .1 .1" visible="true"></a-mixin>
-          <img id="hax-banner" src=${new URL(
-            '../assets/haxBanner.svg',
-            import.meta.url
-          )}>
-          <a-mixin id="hax" position="0 1.62368 -5" rotation="90 0 0" gltf-model="#haxModel" scale="10 10 10" visible="true"></a-mixin>
+          <a-asset-item
+            id="treeModel"
+            src="${new URL('../assets/tree.glb', import.meta.url)}"
+          ></a-asset-item>
+          <a-asset-item
+            id="haxModel"
+            src="${new URL('../assets/hax.glb', import.meta.url)}"
+          ></a-asset-item>
+          <a-mixin
+            id="tree"
+            position="0 10 0"
+            gltf-model="#treeModel"
+            scale=".1 .1 .1"
+            visible="true"
+          ></a-mixin>
+          <img
+            id="hax-banner"
+            src=${new URL('../assets/haxBanner.svg', import.meta.url)}
+          />
+          <a-mixin
+            id="hax"
+            position="0 1.62368 -5"
+            rotation="90 0 0"
+            gltf-model="#haxModel"
+            scale="10 10 10"
+            visible="true"
+          ></a-mixin>
+          <a-mixin
+            id="hax-box"
+            geometry="primitive:box; width:${boxSize}; height:${boxSize}; depth:${boxSize};"
+            material="color:${boxColor};"
+          ></a-mixin>
         </a-assets>
 
         <!-- behind -->
@@ -132,32 +198,39 @@ export class HaxCamp extends LitElement {
         <!-- ${this.renderTrees(80, -10, -2, 'left')} -->
         <!-- ${this.renderTrees(80, 2, 10)} -->
 
-        <a-entity id="hax" position="-1.95129 1.01699 -3.27237" scale=".5 .5 .5">
-          <a-entity id="h" position="0 0 0">
-            <a-box id="h-left" geometry="height:4; width:.1;"></a-box>
-            <a-box id="h-mid" geometry="height:.1; width:2;" position="1 0 0"></a-box>
-            <a-box id="h-right" geometry="height:4; width:.1;" position="2 0 0"></a-box>
+        <a-entity id="hax-logo">
+          <a-entity id="hax-logo-container" class="letter" position="-12 -12 0">
+            ${this.renderBoxedContainer({
+              scale: 2,
+              count: 30,
+              offset: 5,
+            })}
           </a-entity>
-          <a-entity id="a" position="3 0 0">
-            <a-box id="a-left" geometry="height:4; width:.1;" rotation="0 0 -15"></a-box>
-            <a-box id="a-mid" geometry="height:.1; width:1.1;" position=".54 0 0"></a-box>
-            <a-box id="a-right" geometry="height:4; width:.1;" position="1.1 0 0" rotation="0 0 15"></a-box>
+
+          <a-entity id="hax-logo-h" class="letter" position="-8 8 0">
+            <a-entity>
+              ${this.renderBoxedContainer({ scale: 2, count: 8 })}
+            </a-entity>
           </a-entity>
-          <a-entity id="x" position="6 0 0">
-            <a-box id="x-left" geometry="height:4; width:.1;" rotation="0 0 -30"></a-box>
+          <a-entity id="hax-logo-a" class="letter">
+            <a-entity>
+              ${this.renderBoxedContainer({ scale: 2, count: 8 })}
+            </a-entity>
+          </a-entity>
+          <a-entity id="hax-logo-x" class="letter" position="8 -8 0">
+            <a-entity>
+              ${this.renderBoxedContainer({ scale: 2, count: 8 })}
+            </a-entity>
           </a-entity>
         </a-entity>
 
-        <a-plane
-          position="0 0 -4"
-          rotation="-90 0 0"
-          width="40"
-          height="40"
-          color="#7BC8A4"
-        ></a-plane>
         <!-- <a-plane src="#hax-banner" height="100" width="100" rotation="0 0 0" position="0 0 -150"></a-plane> -->
         <a-sky color="lightblue"></a-sky>
-        <a-camera position="" touchEnabled="false" wasd-controls-enabled="false" look-controls-enabled="true" touchEnabled="true">
+        <a-entity
+          camera
+          look-controls
+          orbit-controls="target: 0 1.6 -0.5; minDistance: 0.5; maxDistance: 180; initialPosition: 0 5 45"
+        ></a-entity>
       </a-scene>
     `;
   }
