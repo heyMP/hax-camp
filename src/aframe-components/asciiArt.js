@@ -16,26 +16,50 @@ const loadArt = async file => {
   return artPixelsMatrix.flatMap(item => item);
 };
 
+const round = number => {
+  return Math.round((number + Number.EPSILON) * 100) / 100;
+};
+
 AFRAME.registerComponent('ascii-art', {
   schema: {
-    scale: { default: 1 },
-    speed: { default: 1 },
+    scale: { default: 0.05 },
+    speed: { default: 0.01 },
     time: { default: 0.01 },
     file: { default: null, type: 'string' },
   },
 
-  init: async function () {
+  update: async function () {
     this.t = 0;
     const scale = this.data.scale;
     this.artPixels = await loadArt(
       new URL('../../assets/hax-hd.txt', import.meta.url)
     );
+
+    // measure how tall and wide by finding the largest number for each
+    const pixelXValues = this.artPixels.map(pixel => pixel.xPosition);
+    const pixelYValues = this.artPixels.map(pixel => pixel.yPosition);
+    const pixelXMin = Math.min(...pixelXValues);
+    const pixelXMax = Math.max(...pixelXValues);
+    const pixelYMin = Math.min(...pixelYValues);
+    const pixelYMax = Math.max(...pixelYValues);
+
+    const containerMesh = this.el.getObject3D('mesh');
+    const containerWidth = containerMesh.geometry.parameters.width;
+    const containerHeight = containerMesh.geometry.parameters.height;
+    const adjustedWidth = containerWidth / pixelXMax;
+    const adjustedHeight = containerHeight / pixelYMax;
+
     this.artPixels.forEach((pixel, index) => {
       var material = new THREE.MeshBasicMaterial({ color: 'blue' });
-      var geometry = new THREE.BoxGeometry(1 * scale, 1 * scale, 5 * scale);
+      var geometry = new THREE.BoxGeometry(
+        adjustedWidth,
+        adjustedHeight,
+        containerMesh.geometry.parameters.depth
+      );
       var cube = new THREE.Mesh(geometry, material);
-      cube.position.x = pixel.xPosition * scale;
-      cube.position.y = pixel.yPosition * scale;
+      cube.position.x = pixel.xPosition * adjustedWidth - containerWidth * 0.5;
+      cube.position.y = pixel.yPosition * adjustedHeight - containerWidth * 0.5;
+
       this.el.setObject3D('mesh' + index, cube); //unique name for each object
     });
   },

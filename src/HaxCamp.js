@@ -1,4 +1,5 @@
 import { LitElement, html, css, unsafeCSS } from 'lit';
+import './elements/hax-ascii.js';
 import './elements/hax-character.js';
 import './elements/hax-conversation.js';
 import './elements/hax-hero.js';
@@ -133,13 +134,16 @@ export class HaxCamp extends LitElement {
 
   render() {
     return html`
+      <!-- <hax-ascii></hax-ascii> -->
       <a-scene>
         <a-assets> </a-assets>
         <a-entity id="ascii-art" position="0 0 0">
           <a-entity
             ascii-art
-            scale=".06 .06 .06"
-            position="-6.5 0 0"
+            scale="1 1 1"
+            position="0 0 0"
+            geometry="primitive:box; width:10; height:10; depth:.2;"
+            material="opacity:0;"
           ></a-entity>
         </a-entity>
         <a-sky color="lightblue"></a-sky>
